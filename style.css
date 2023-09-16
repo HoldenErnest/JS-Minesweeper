@@ -1,0 +1,26 @@
+body {
+    color: white;
+    background-color: black;
+    font-family: 'Courier';
+    padding: 0;
+    margin: 0;
+    font-size: 12pt;
+    line-height: 8pt;
+    text-overflow: clip;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.sliders {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+canvas {
+    margin: auto;
+    width: 50%;
+    left: 50%;
+}
+#content {
+    position: relative; 
+    z-index: 2; 
+}
