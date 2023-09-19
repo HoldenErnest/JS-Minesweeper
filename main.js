@@ -7,9 +7,9 @@ var theCanvas;
 
 var canvasSize; // the current canvas size
 
-const gridSize = 30;
-const offset = 1;
-const numBombs = 300;
+const gridSize = 50;
+const offset = 0;
+const numBombs = 600;
 
 
 var grid = new Array(gridSize);
@@ -97,6 +97,7 @@ class Tile { // Class for all tiles
     y;
     c;
     isBomb = false;
+    revealed = false;
     constructor(x,y,c) {
         this.x = x;
         this.y = y;
@@ -105,19 +106,25 @@ class Tile { // Class for all tiles
     isBomb() {
         return this.isBomb;
     }
+    isRevealed() {
+        return this.revealed;
+    }
     setBomb() {
         this.isBomb = true;
     }
     reveal() { // when you click this tile
+        if (this.isRevealed()) return;
+        this.revealed = true;
         if (this.isBomb) {
             this.c = color(255,0,0);
             // game over
             console.log("you lost :(");
         } else {
             var num = this.getNumber();
-            if (num == 0)
+            if (num == 0) {
                 this.c = color(255, 255, 255);
-            else {
+                this.revealNeighbors();
+            } else {
                 var normalized = num / 4; // GET A BETTER WAY TO REPRESENT THE NUMBERS!
                 this.c = color(255-normalized*255, 255-normalized*255, 255);
             }
@@ -128,6 +135,18 @@ class Tile { // Class for all tiles
             return -1;
         }
         return this.getNeighborBombs();
+    }
+    revealNeighbors() { // only call when the revealed number is a 0 (no bombs as neighbors)
+        for (var i = -1; i <= 1; i++) {
+            for (var j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) continue;
+                var tmpX = this.x + i;
+                var tmpY = this.y + j;
+                if (this.onGrid(tmpX,tmpY)) {
+                    grid[tmpX][tmpY].reveal();
+                }
+            }
+        }
     }
     getNeighborBombs() {
         var count = 0;
@@ -141,9 +160,6 @@ class Tile { // Class for all tiles
                         count++;
                         continue;
                     }
-                    //if (grid[tmpX][tmpY].getNumber() == 0) { // if you need to recursivly reveal
-                        // recursion
-                    //}
                 }
             }
         }
