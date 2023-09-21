@@ -7,42 +7,33 @@ var theCanvas;
 
 var canvasSize; // the current canvas size
 
-const gridSize = 50;
+var gridSize = 50;
 const offset = 0;
-const numBombs = 600;
+var numBombs = 600;
 
 
-var grid = new Array(gridSize);
+var grid;
 
+var content;
+var isGameOver = false;
+
+var completion = 0;
 
 // run before loading the page
 function preload() {
-    for (var i = 0; i < gridSize; i++) {
-        grid[i] = new Array(gridSize);
-        for (var j = 0; j < gridSize; j++) {
-            grid[i][j] = new Tile(i,j,color(255,0,255));
-        }
-    }
-    setRandomBombs(numBombs);
-    for (var i = 0; i < gridSize; i++) {
-        for (var j = 0; j < gridSize; j++) {
-            grid[i][j].reveal();
-        }
-    }
-    // something
-    
+    content = document.getElementById("content");
+    play();
 }
 // run once on setup
 function setup() {
     theCanvas = createCanvas(windowHeight, windowHeight);
     centerCanvas();
-    frameRate(30);
+    frameRate(15);
 }
 
 // run every frame
 function draw() {
     background(25,25,25);
-    
     drawRects();
 }
 
@@ -81,9 +72,11 @@ function windowResized() {
 }
 // EVENT mouse clicked
 function mouseClicked() {
+    if (isGameOver) return;
     var pos = pixelToGrid(mouseX, mouseY);
     if (pos.x == -1) return;
     grid[pos.x][pos.y].reveal();
+    updateCompletion();
 }
 
 class Vector2 { // TEMP CLASS
@@ -114,11 +107,12 @@ class Tile { // Class for all tiles
     }
     reveal() { // when you click this tile
         if (this.isRevealed()) return;
+        completion += 100/(gridSize*gridSize);
         this.revealed = true;
         if (this.isBomb) {
             this.c = color(255,0,0);
             // game over
-            console.log("you lost :(");
+            gameOver();
         } else {
             var num = this.getNumber();
             if (num == 0) {
@@ -169,7 +163,56 @@ class Tile { // Class for all tiles
         return !(xx < 0 || xx >= gridSize || yy < 0 || yy >= gridSize);
     }
 };
-
+function revealAll() {
+    for (var i = 0; i < gridSize; i++) {
+        for (var j = 0; j < gridSize; j++) {
+            grid[i][j].reveal();
+        }
+    }
+}
+function updateCompletion() {
+    document.getElementById("completion").innerHTML = (Math.floor(completion) + "/100 (%)");
+    
+}
+function gameOver() {
+    content.style.display = "block";
+    isGameOver = true;
+    var tComp = completion;
+    revealAll();
+    completion = tComp;
+    updateCompletion();
+}
+function play() {
+    completion = 0;
+    content.style.display = "none";
+    isGameOver = false;
+    getNewNumbers();
+    initGrid();
+}
+function getNewNumbers() { // update grid size and bombs
+    var newGC = document.getElementById("gs").value;
+    if (newTB == "") {
+        newGC = 10;
+    }
+    gridSize = newGC;
+    var newTB = Math.floor(((document.getElementById("tb").value)/100) * (gridSize * gridSize));
+    if (newTB == "") {
+        newTB = 25;
+    }
+    numBombs = newTB;
+    document.getElementById("mapSizeStat").innerHTML = "Size: " + gridSize + "x" + gridSize;
+    document.getElementById("bombsStat").innerHTML = "Bombs: " + numBombs;
+}
+function initGrid() {
+    grid = new Array(gridSize);
+    for (var i = 0; i < gridSize; i++) { // init grid
+        grid[i] = new Array(gridSize);
+        for (var j = 0; j < gridSize; j++) {
+            grid[i][j] = new Tile(i,j,color(255,0,255));
+        }
+    }
+    setRandomBombs(numBombs);
+}
 function centerCanvas() {
     var dif = windowWidth - windowHeight;
     if (dif > 0) {

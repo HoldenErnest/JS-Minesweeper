@@ -6,6 +6,17 @@
   
     <body>
         <script src="main.js"></script>
-        <div id="content"></div>
+        <div id="content">
+            <button onclick="play()">Play Again</button><br>
+            <label for="gs">Grid Size:</label>
+            <input type="number" id="gs" name="gs" min="5" max="50" value="10"><br>
+            <label for="tb">Total Bombs (%):</label>
+            <input type="number" id="tb" name="tb" min="1" max="99" value="25">
+        </div>
+        <div id="stats">
+            <p id="mapSizeStat">Size: 10x10</p>
+            <p id="bombsStat">Bombs: 25</p>
+            <p id="completion">0/100%</p>
+        </div>
     </body>
 </html>
